@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		lowercase: true,
 		required: [ true, 'email is required' ],
+		index: true,
 		unique: true,
 		validate: {
 			validator: (email) => emailRegexp.test(email),
@@ -17,16 +18,14 @@ const userSchema = new mongoose.Schema({
 	username: {
 		type: String,
 		required: [ true, 'username is required' ],
-		min: [ 2, 'Username should be at least 2 characters' ]
+		minlength: [ 2, 'Username should be at least 2 characters' ],
+		maxlength: [ 16, "Username can't be more than 16 characters" ]
 	},
 	password: {
 		type: String,
 		required: [ true, 'password is required' ],
-		min: [ 6, 'password is too short' ],
-		max: [ 32, 'password is too long' ]
-	},
-	profileImageUrl: {
-		type: String
+		minlength: [ 6, 'password is too short' ],
+		maxlength: [ 32, 'password is too long' ]
 	}
 });
 

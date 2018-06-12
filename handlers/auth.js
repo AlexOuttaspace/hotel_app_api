@@ -6,31 +6,27 @@ const invalidPass = {
 	message: 'Invalid email/password'
 };
 
-module.exports.signup = async function(req, res, next) {
+const passNotMatch = {
+	status: 400,
+	message: 'Passwords don\'t match'
+}
+
+module.exports.signup = async function (req, res, next) {
 	try {
 		// password not confirmed.
 		if (req.body.confirmPassword !== req.body.password) {
-			throw new Error('Passwords don\t match');
+			return next(passNotMatch);
 		}
+
 		const user = await db.User.create(req.body);
 		const userData = prepareUserData(user);
 		return res.status(200).json(userData);
 	} catch (err) {
-		console.log(err);
-		if (err.name === 'ValidationError') {
-			return next({
-				status: 400,
-				message: 'Invalid input'
-			});
-		}
-		if (err.code === 11000) {
-			err.message = 'User with this email is already registered';
-		}
 		return next(err);
 	}
 };
 
-module.exports.signin = async function(req, res, next) {
+module.exports.signin = async function (req, res, next) {
 	try {
 		const user = await db.User.findOne({ email: req.body.email });
 
@@ -43,22 +39,15 @@ module.exports.signin = async function(req, res, next) {
 			next(invalidPass);
 		}
 	} catch (err) {
-		next(invalidPass);
+		return next(invalidPass);
 	}
 };
 
-const prepareUserData = ({
-	_id,
-	username,
-	profileImageUrl,
-	likedPosts,
-	likedComments
-}) => {
+const prepareUserData = ({ _id, username, profileImageUrl }) => {
 	const token = jwt.sign(
 		{
 			_id,
-			username,
-			profileImageUrl
+			username
 		},
 		process.env.SECRET_KEY
 	);
@@ -66,9 +55,6 @@ const prepareUserData = ({
 	return {
 		_id,
 		username,
-		profileImageUrl,
-		likedPosts,
-		likedComments,
 		token
 	};
 };

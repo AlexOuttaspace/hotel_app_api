@@ -13,3 +13,5 @@ mongoose.connection
 	});
 
 module.exports.User = require('./User');
+module.exports.Suite = require('./Suite');
+module.exports.Booking = require('./Booking');
