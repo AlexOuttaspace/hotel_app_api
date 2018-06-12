@@ -19,12 +19,12 @@ const BookingSchema = new mongoose.Schema({
 	},
 	adults: {
 		type: Number,
-		min: [ 1, 'Should be at least one adult' ]
+		min: [1, 'Should be at least one adult']
 	},
 	children: [
 		{
 			type: Number,
-			required: true
+			min: [0, 'Incorrect age provided. Must be > 0']
 		}
 	],
 	from: {
@@ -48,5 +48,25 @@ const BookingSchema = new mongoose.Schema({
 		default: false
 	}
 });
+
+
+// when booking is saved, add it to its suite
+BookingSchema.post('save', async function (...args) {
+	const Suite = mongoose.model('Suite');
+	await Suite.findByIdAndUpdate(this.suite, { $push: { bookings: this._id } });
+});
+
+// when booking is deleted, remove it from its suite
+BookingSchema.pre('remove', async function (next) {
+	try {
+		const Suite = mongoose.model('Suite');
+		await Suite.findByIdAndUpdate(this.suite, { $pull: { bookings: this._id } });
+
+		return next();
+	} catch (err) {
+		return next(err);
+	}
+});
+
 
 module.exports = mongoose.model('Booking', BookingSchema);

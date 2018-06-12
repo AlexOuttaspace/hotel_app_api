@@ -14,7 +14,7 @@ const express = require('express'),
 	cors = require('cors');
 
 // routes
-const { authRoutes, suitesRouts } = require('./routes/');
+const { authRoutes, suitesRouts, bookingsRouts } = require('./routes/');
 
 // helper functions
 const { errorHandler, errorThrower } = require('./handlers/errors');
@@ -44,6 +44,7 @@ app.use(getLoggedUser);
 // ROUTES //
 app.use('/api/auth/', authRoutes);
 app.use('/api/suites/', suitesRouts);
+app.use('/api/bookings/', bookingsRouts);
 ////////////
 
 // not found, raise 404

@@ -19,7 +19,7 @@ module.exports.getSuites = async function (req, res, next) {
 	try {
 		const suites = await db.Suite.find().populate('bookings');
 
-		if (!!suites.length) { return next(notFound); }
+		if (!suites.length) { return next(notFound); }
 
 		return res.status(200).json(suites);
 	} catch (err) {
@@ -43,7 +43,8 @@ module.exports.getSuite = async function (req, res, next) {
 module.exports.updateSuite = async function (req, res, next) {
 	try {
 		const updatedSuite = await db.Suite
-			.findByIdAndUpdate(req.params.suite_id, req.body, { new: true });
+			.findByIdAndUpdate(req.params.suite_id, req.body, { new: true })
+			.populate('bookings');
 
 		if (!updatedSuite) { return next(notFound); }
 

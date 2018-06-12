@@ -39,4 +39,15 @@ const SuiteSchema = new mongoose.Schema({
 	]
 });
 
+// when suite is deleted, delete all its bookings
+SuiteSchema.pre('remove', async function (next) {
+	try {
+		const Booking = mongoose.model('Booking');
+		await Booking.deleteMany({ suite: this.suite });
+		return next();
+	} catch (err) {
+		return next(err);
+	}
+});
+
 module.exports = mongoose.model('Suite', SuiteSchema);
