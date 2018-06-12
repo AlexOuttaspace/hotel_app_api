@@ -5,6 +5,16 @@ const notFound = {
 	message: 'Document not found'
 };
 
+const queryThunk = (queryObject) => {
+	const query = {};
+
+	if (queryObject.suite && typeof queryObject.suite === 'string') {
+		query.suite = queryObject.suite;
+	}
+
+	return query;
+};
+
 module.exports.createBooking = async function(req, res, next) {
 	try {
 		const newBooking = await db.Booking.create(req.body);
@@ -17,10 +27,12 @@ module.exports.createBooking = async function(req, res, next) {
 
 module.exports.getBookings = async function(req, res, next) {
 	try {
-		const bookings = await db.Booking.find();
+		const query = queryThunk({ ...req.query });
+		const bookings = await db.Booking.find(query);
 
 		return res.status(200).json(bookings);
 	} catch (err) {
+		console.log(err);
 		return next(err);
 	}
 };

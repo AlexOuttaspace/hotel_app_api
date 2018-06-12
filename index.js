@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 3001;
 const express = require('express'),
 	app = express(),
 	bodyParser = require('body-parser'),
-	expressSanitizer = require('express-sanitizer'),
-	cors = require('cors');
+	cors = require('cors'),
+	boolParser = require('express-query-boolean');
 
 // routes
 const { authRoutes, suitesRouts, bookingsRouts } = require('./routes/');
@@ -19,6 +19,7 @@ const { authRoutes, suitesRouts, bookingsRouts } = require('./routes/');
 // helper functions
 const { errorHandler, errorThrower } = require('./handlers/errors');
 const { getLoggedUser } = require('./middleware/auth');
+const sanitizeQuery = require('./middleware/sanitizeQuery');
 
 // Log server requests
 app.use(morgan('tiny'));
@@ -35,11 +36,14 @@ app.use(
 
 app.use(bodyParser.json());
 
-// sanitize all inputs
-app.use(expressSanitizer());
+// parse query boolean values
+app.use(boolParser());
 
 // add user id to req.user_id
 app.use(getLoggedUser);
+
+// check if query contains objects
+app.use(sanitizeQuery);
 
 // ROUTES //
 app.use('/api/auth/', authRoutes);
